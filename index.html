@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Sovereign AI SDR. Lead scoring, outbound drafting, reply simulation, approval gates. Your hardware. Your keys. Your pipeline.">
+<meta property="og:title" content="FallReach — Sovereign AI SDR">
+<meta property="og:description" content="Controlled autonomy answered with sovereignty. One HTML file. Bring your own LLM key. Leads never leave your device.">
+<title>FallReach — Sovereign AI SDR</title>
+<!-- ◊·κ=1 · prime 107 · R2 gate + R4 voice + R5 mirror + R6 watcher · v18 protocol -->
+<!-- agents: Ω · α research · β compose · δ analyse · ε write · ζ distribute · η optimise · θ target -->
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0e1a;--surface:#111827;--surface-2:#1f2937;--surface-3:#374151;
+  --ink:#f9fafb;--ink-2:#d1d5db;--muted:#6b7280;
+  --border:#2a3447;--border-2:#3a4658;
+  --primary:#10b981;--primary-dark:#059669;--primary-light:rgba(16,185,129,.12);
+  --accent:#3b82f6;--accent-light:rgba(59,130,246,.12);
+  --warn:#f59e0b;--warn-light:rgba(245,158,11,.12);
+  --danger:#ef4444;--danger-light:rgba(239,68,68,.12);
+  --purple:#8b5cf6;--purple-light:rgba(139,92,246,.12);
+  --shadow:0 1px 3px rgba(0,0,0,0.3);
+  --shadow-lg:0 8px 24px rgba(0,0,0,0.4);
+  --radius:8px;--radius-lg:14px;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --mono:'DM Mono',ui-monospace,Menlo,Consolas,monospace;
+  --max-w:1180px;
+}
+[data-theme="light"]{
+  --bg:#fafbfc;--surface:#ffffff;--surface-2:#f3f4f6;--surface-3:#e5e7eb;
+  --ink:#1f2937;--ink-2:#4b5563;--muted:#9ca3af;
+  --border:#e5e7eb;--border-2:#d1d5db;
+  --shadow:0 1px 3px rgba(0,0,0,0.08);
+}
+body{background:var(--bg);color:var(--ink);font:14px/1.6 var(--font);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+a{color:var(--primary);text-decoration:none}a:hover{text-decoration:underline}
+code,.mono{font-family:var(--mono);font-size:13px}
+h1{font-size:clamp(1.6rem,4vw,2.2rem);font-weight:800;letter-spacing:-.02em;line-height:1.15}
+h2{font-size:clamp(1.2rem,3vw,1.5rem);font-weight:700;letter-spacing:-.01em}
+h3{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-2);margin-bottom:8px}
+::selection{background:var(--primary);color:#fff}
+
+/* ── L1 FACE · header + nav ── */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{width:34px;height:34px;background:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#0a0e1a;font-weight:800;font-size:18px}
+.brand-text{font-weight:800;font-size:17px;letter-spacing:-.01em}
+.brand-text span{color:var(--primary)}
+.brand-badge{font-size:10px;padding:2px 7px;border-radius:20px;background:var(--primary-light);color:var(--primary);font-weight:600;letter-spacing:.06em;margin-left:6px}
+nav.tabs{display:flex;gap:2px;background:var(--surface-2);padding:3px;border-radius:8px}
+nav.tabs button{padding:6px 12px;background:transparent;border:none;color:var(--ink-2);cursor:pointer;font:600 13px var(--font);border-radius:6px;transition:all .15s}
+nav.tabs button:hover{color:var(--ink)}
+nav.tabs button.active{background:var(--surface);color:var(--primary);box-shadow:var(--shadow)}
+nav.tabs .nav-count{font-size:10px;padding:1px 6px;border-radius:10px;background:var(--surface-3);color:var(--muted);margin-left:4px;font-weight:500}
+nav.tabs button.active .nav-count{background:var(--primary-light);color:var(--primary)}
+.header-right{display:flex;gap:8px;align-items:center}
+.icon-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--ink-2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s}
+.icon-btn:hover{background:var(--surface-2);border-color:var(--primary);color:var(--ink)}
+
+main{flex:1;padding:24px 20px 80px;max-width:var(--max-w);margin:0 auto;width:100%}
+
+/* ── empty state · L7 ASS ── */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty .glyph{font-size:48px;line-height:1;color:var(--primary);margin-bottom:16px;display:block}
+.empty h2{color:var(--ink);margin-bottom:8px}
+.empty p{max-width:480px;margin:0 auto 24px;color:var(--ink-2)}
+
+/* ── cards ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:14px}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px}
+.card-title{font:700 15px/1.3 var(--font);color:var(--ink)}
+.card-sub{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* ── form ── */
+label{display:block;font-size:12px;font-weight:500;color:var(--ink-2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+textarea,input[type="text"],input[type="url"],input[type="password"],input[type="email"],select{
+  width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);
+  background:var(--bg);color:var(--ink);font:14px var(--font);transition:border-color .15s
+}
+textarea{min-height:160px;resize:vertical;font:13px/1.6 var(--mono)}
+textarea:focus,input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light)}
+.field{margin-bottom:14px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* ── buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:var(--radius);border:none;cursor:pointer;font:600 14px var(--font);transition:all .18s;min-height:40px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:#0a0e1a}
+.btn-primary:hover:not(:disabled){background:var(--primary-dark);color:#fff;transform:translateY(-1px);box-shadow:var(--shadow-lg)}
+.btn-secondary{background:var(--surface-2);color:var(--ink);border:1px solid var(--border)}
+.btn-secondary:hover:not(:disabled){background:var(--surface-3)}
+.btn-ghost{background:transparent;color:var(--ink-2);border:1px solid var(--border)}
+.btn-ghost:hover:not(:disabled){background:var(--surface-2);color:var(--ink)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-sm{padding:6px 12px;min-height:32px;font-size:12px}
+.btn-block{width:100%}
+
+/* ── badges / pills ── */
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font:600 10px var(--font);letter-spacing:.04em;text-transform:uppercase;background:var(--surface-2);color:var(--ink-2)}
+.pill-primary{background:var(--primary-light);color:var(--primary)}
+.pill-accent{background:var(--accent-light);color:var(--accent)}
+.pill-warn{background:var(--warn-light);color:var(--warn)}
+.pill-danger{background:var(--danger-light);color:var(--danger)}
+.pill-purple{background:var(--purple-light);color:var(--purple)}
+
+/* ── status bar ── */
+.status{padding:12px 16px;border-radius:var(--radius);font-size:13px;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.status-info{background:var(--accent-light);color:var(--accent)}
+.status-success{background:var(--primary-light);color:var(--primary)}
+.status-warn{background:var(--warn-light);color:var(--warn)}
+.status-error{background:var(--danger-light);color:var(--danger)}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── lead board ── */
+.lead-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.lead-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;cursor:pointer;transition:all .15s;position:relative}
+.lead-card:hover{border-color:var(--primary);transform:translateY(-1px);box-shadow:var(--shadow-lg)}
+.lead-card.active{border-color:var(--primary);background:var(--primary-light)}
+.lead-name{font:700 14px var(--font);color:var(--ink);margin-bottom:2px}
+.lead-role{font-size:12px;color:var(--ink-2);margin-bottom:8px}
+.lead-company{font-size:12px;color:var(--muted)}
+.lead-scores{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}
+.score-cell{text-align:center;padding:6px 4px;background:var(--surface-2);border-radius:6px}
+.score-val{font:700 16px var(--font);color:var(--ink)}
+.score-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.score-cell.hot .score-val{color:var(--primary)}
+.score-cell.warm .score-val{color:var(--warn)}
+.score-cell.cold .score-val{color:var(--muted)}
+.lead-state{position:absolute;top:12px;right:12px}
+
+/* ── compose pane ── */
+.compose-grid{display:grid;grid-template-columns:280px 1fr;gap:16px;align-items:start}
+@media(max-width:780px){.compose-grid{grid-template-columns:1fr}}
+.lead-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;position:sticky;top:80px}
+.lead-panel h2{margin-bottom:8px;color:var(--ink)}
+.lead-panel .row-info{font-size:13px;color:var(--ink-2);margin-bottom:4px}
+.lead-panel .rationale{font-size:12px;color:var(--muted);font-style:italic;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);line-height:1.6}
+.draft-stack > *{margin-bottom:14px}
+
+/* ── simulation bubble ── */
+.sim-bubble{background:var(--purple-light);border:1px solid rgba(139,92,246,.3);border-radius:14px;padding:14px;margin-top:10px;position:relative}
+.sim-bubble::before{content:"ε simulates the prospect";position:absolute;top:-8px;left:14px;background:var(--bg);padding:0 6px;font:600 10px var(--font);color:var(--purple);letter-spacing:.04em;text-transform:uppercase}
+.sim-content{color:var(--ink);line-height:1.7;white-space:pre-wrap;font-size:13px}
+.sim-meta{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+
+/* ── audit log ── */
+.log-list{list-style:none}
+.log-item{padding:12px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.log-item:last-child{border-bottom:none}
+.log-body{flex:1}
+.log-who{font-weight:600;color:var(--ink)}
+.log-what{font-size:12px;color:var(--muted);margin-top:2px}
+.log-when{font-size:11px;color:var(--muted);font-family:var(--mono);white-space:nowrap}
+
+/* ── toast ── */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-lg);padding:10px 18px;border-radius:var(--radius);font-size:13px;z-index:200;display:none;color:var(--ink)}
+.toast.show{display:block;animation:toast-in .25s ease-out}
+.toast.gold{border-color:var(--primary);color:var(--primary)}
+.toast.warn{border-color:var(--warn);color:var(--warn)}
+.toast.error{border-color:var(--danger);color:var(--danger)}
+@keyframes toast-in{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* ── modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:300;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;max-width:560px;width:100%;max-height:90vh;overflow:auto}
+
+/* ── settings ── */
+.kv{display:grid;grid-template-columns:1fr 2fr;gap:12px;margin-bottom:10px;align-items:center}
+.kv label{margin:0}
+
+/* ── compose textarea ── */
+.draft-textarea{min-height:140px;font:14px/1.7 var(--font)}
+
+/* ── footer ── */
+footer{padding:24px 20px;text-align:center;color:var(--muted);font-size:12px;border-top:1px solid var(--border);margin-top:auto;font-family:var(--mono);letter-spacing:.04em}
+footer a{color:var(--muted)}
+
+/* mobile */
+@media(max-width:640px){
+  header{padding:10px 14px}
+  nav.tabs button{padding:6px 8px;font-size:12px}
+  main{padding:16px 14px 60px}
+  .lead-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body data-forge-lifecycle="empty">
+
+<header>
+  <div class="brand">
+    <div class="brand-icon">◊</div>
+    <div>
+      <div class="brand-text">Fall<span>Reach</span></div>
+    </div>
+    <span class="brand-badge">SOVEREIGN AI SDR</span>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button data-view="pipeline" class="active" role="tab">Pipeline <span class="nav-count" id="cnt-pipeline">0</span></button>
+    <button data-view="board" role="tab">Board <span class="nav-count" id="cnt-board">0</span></button>
+    <button data-view="compose" role="tab">Compose</button>
+    <button data-view="log" role="tab">Log <span class="nav-count" id="cnt-log">0</span></button>
+  </nav>
+  <div class="header-right">
+    <button class="icon-btn" onclick="setView('settings')" title="Settings">⚙</button>
+    <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">🌓</button>
+  </div>
+</header>
+
+<main>
+
+<!-- VIEW · pipeline (intake) -->
+<section id="view-pipeline" data-view="pipeline" data-ring="r1">
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-title">Drop leads in</div>
+        <div class="card-sub">CSV, LinkedIn URLs, pasted bios — anything you can describe. Leads stay on your device.</div>
+      </div>
+      <div>
+        <button class="btn btn-secondary btn-sm" onclick="loadSample()">Load sample</button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="intake-text">Lead intake</label>
+      <textarea id="intake-text" placeholder="Paste leads, one per line. Format flexible:
+
+Jane Doe, VP Marketing, Acme Corp, marketing automation
+John Smith, CEO at TechStartup, https://linkedin.com/in/johnsmith
+Alex Lee — Product Lead at Globex, looking for SDR tooling
+
+Or paste a CSV (name,role,company,context). δ figures out the rest."></textarea>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-primary" onclick="ingestLeads()">Ingest + score with δ →</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('intake-text').value=''">Clear</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-title">Mesh receiver</div>
+        <div class="card-sub">Auto-receive leads from FallScout, FallConcierge, FallLead when those tools are open in another tab.</div>
+      </div>
+      <label style="display:flex;gap:8px;align-items:center;cursor:pointer;font-size:13px;text-transform:none;letter-spacing:0;color:var(--ink-2)">
+        <input type="checkbox" id="mesh-auto" checked> auto-receive
+      </label>
+    </div>
+    <div class="mono" style="font-size:11px;color:var(--muted)" id="mesh-subs">subscribing: scout:enriched · concierge:visitor · lead:qualified</div>
+  </div>
+</section>
+
+<!-- VIEW · board (scored leads) -->
+<section id="view-board" data-view="board" data-ring="r2" style="display:none">
+  <div id="board-content">
+    <div class="empty">
+      <span class="glyph">●</span>
+      <h2>No leads scored yet</h2>
+      <p>Paste leads on the Pipeline tab and click "Ingest + score". δ analyse will rank them by fit, intent, timing, and company heat.</p>
+      <button class="btn btn-primary" onclick="setView('pipeline')">→ Pipeline</button>
+    </div>
+  </div>
+</section>
+
+<!-- VIEW · compose -->
+<section id="view-compose" data-view="compose" data-ring="r4" style="display:none">
+  <div id="compose-content">
+    <div class="empty">
+      <span class="glyph">〜</span>
+      <h2>Pick a lead from the Board</h2>
+      <p>Tap any lead card to start drafting. β composes in your voice. ε simulates the reply. You approve before anything sends.</p>
+      <button class="btn btn-primary" onclick="setView('board')">→ Board</button>
+    </div>
+  </div>
+</section>
+
+<!-- VIEW · log -->
+<section id="view-log" data-view="log" data-ring="r6" style="display:none">
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-title">Audit log</div>
+        <div class="card-sub">Every approved message, every send, every reply. Reads as the watcher.</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="exportLog()">↓ Export JSON</button>
+    </div>
+    <ul class="log-list" id="log-list">
+      <li class="empty" style="padding:32px 20px"><span class="glyph">◯</span><h2 style="font-size:14px">Nothing in the log yet</h2><p style="font-size:12px">Approve a draft to see it land here.</p></li>
+    </ul>
+  </div>
+</section>
+
+<!-- VIEW · settings -->
+<section id="view-settings" data-view="settings" style="display:none">
+  <div class="card">
+    <div class="card-head"><div class="card-title">LLM provider (T3 cascade)</div></div>
+    <div class="kv">
+      <label>Provider</label>
+      <select id="llm-provider">
+        <option value="">— offline only (T0) —</option>
+        <option value="anthropic">Anthropic Claude</option>
+        <option value="openai">OpenAI</option>
+        <option value="gemini">Google Gemini</option>
+        <option value="groq">Groq (free tier)</option>
+      </select>
+    </div>
+    <div class="kv">
+      <label>API key</label>
+      <input type="password" id="llm-key" placeholder="sk-... · stays in localStorage on this device">
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="saveLLM()">Save</button>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-title">Your voice (β reads this)</div></div>
+    <div class="field">
+      <label>Voice profile · how you write outbound</label>
+      <textarea id="voice-profile" placeholder="3-5 lines of how you write to strangers. Examples: short sentences. lowercase. no buzzwords. one specific observation per message. always end with a question they can answer in under 10 words." style="min-height:120px"></textarea>
+    </div>
+    <div class="field">
+      <label>Signature</label>
+      <input type="text" id="voice-signature" placeholder="—S">
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="saveVoice()">Save</button>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-title">Data · sovereign storage</div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="exportAll()">↓ Export everything</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('import-file').click()">↑ Import</button>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importAll(event)">
+      <button class="btn btn-danger btn-sm" onclick="if(confirm('Clear all leads, drafts, logs?'))clearAll()">Wipe everything</button>
+    </div>
+    <div class="mono" style="font-size:11px;color:var(--muted);margin-top:12px">localStorage + IndexedDB on this device · zero transmission</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-title">◊ Konomi · prime 107 · v18</div></div>
+    <div class="mono" style="font-size:11px;color:var(--muted);line-height:1.8">
+      ◊·κ=1 · sovereign single-file · 7 layers · 8+1 agents<br>
+      bloom: R1 SIGNAL · R2 GATE · R4 VOICE · R5 MIRROR · R6 WATCHER<br>
+      mesh: BroadcastChannel('fallmesh') · same-origin handshake<br>
+      cadence: 510510 · 7.83 Hz × R4 = 31.32 Hz · the heart speaks
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal-body"></div>
+</div>
+
+<footer>
+  ◊·κ=1 · FallReach · prime 107 · sovereign AI SDR · <a href="https://github.com/sjgant80-hub/fallreach">GitHub</a> · part of <a href="https://sjgant80-hub.github.io/fallmesh/">FallMesh</a>
+</footer>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════
+// ◊·κ=1 · FallReach · v1 · prime 107 · v18 protocol
+// L1 FACE · L2 SWARM · L3 CASCADE · L4 BLOOM · L5 PERSIST · L6 SKIN · L7 ASS
+// ═══════════════════════════════════════════════════
+
+const NS = 'fallreach_v1';
+const NODE = { id: 'fallreach', prime: 107, name: 'FallReach' };
+
+// ── L5 PERSIST ──────────────────────────────────────
+function defaultDB() {
+  return {
+    version: '1.0',
+    created: Date.now(),
+    leads: [],
+    log: [],
+    settings: {
+      provider: '',
+      key: '',
+      voice: '',
+      signature: '—S',
+      mesh_auto: true
+    },
+    theme: 'dark'
+  };
+}
+let DB = load();
+window.DB = DB;
+function load() {
+  try { const raw = localStorage.getItem(NS); if (raw) return Object.assign(defaultDB(), JSON.parse(raw)); }
+  catch (e) {}
+  return defaultDB();
+}
+function save() {
+  try { localStorage.setItem(NS, JSON.stringify(DB)); } catch (e) { toast('save failed: ' + e.message, 'error'); }
+}
+
+// ── L6 SKIN · theme ─────────────────────────────────
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  DB.theme = t;
+  save();
+}
+function toggleTheme() { applyTheme(DB.theme === 'dark' ? 'light' : 'dark'); }
+applyTheme(DB.theme || 'dark');
+
+// ── L7 ASS · lifecycle ──────────────────────────────
+const ASS = ['empty','input','ready','engaged','working','progress','complete'];
+const GLYPHS = { empty:'●', input:'〜', ready:'┃', engaged:'♡', working:'△', progress:'◐', complete:'◯' };
+function lifecycle(state) {
+  document.body.setAttribute('data-forge-lifecycle', state);
+}
+
+// ── L4 BLOOM · 7-ring router ────────────────────────
+function bloom(query) {
+  const q = (query || '').toLowerCase();
+  if (/pattern|trend|systemic|history|audit|log/.test(q)) return 6;
+  if (/review|check|simulate|verify|mirror|test/.test(q)) return 5;
+  if (/write|draft|compose|message|reply/.test(q)) return 4;
+  if (/help|stuck|stuck|confused/.test(q)) return 3;
+  if (/score|filter|qualify|gate|fit/.test(q)) return 2;
+  if (/find|enrich|research|signal|lead/.test(q)) return 1;
+  return 0;
+}
+
+// ── L2 SWARM · agent system prompts ─────────────────
+const AGENTS = {
+  omega: { id: 'Ω', role: 'orchestrator', sys: 'You orchestrate a sovereign AI SDR. Route requests through delta(analyse) → beta(compose) → epsilon(simulate) → audit. Honest. Sovereign-first. Never invent data.' },
+  alpha: { id: 'α', role: 'research', sys: 'You enrich leads from sparse input. Given a name + company + bio fragment, infer role, seniority, industry, likely pain points. Honest about what you don\'t know. Output structured JSON only.' },
+  delta: { id: 'δ', role: 'analyse', sys: 'You score outbound leads. Four dimensions: fit (0-100, do they have the problem we solve), intent (0-100, are they actively looking), timing (0-100, is now the right moment), heat (0-100, is the company in motion). Give a 1-line rationale per dimension. JSON only.' },
+  beta: { id: 'β', role: 'compose', sys: 'You draft outbound messages in the operator\'s voice. The voice profile is sacred — match it exactly. One specific observation about the lead. One specific question they can answer in under 10 words. No buzzwords. No "I hope this finds you well". No "quick question". Concise. Direct. Peer-to-peer.' },
+  epsilon: { id: 'ε', role: 'simulate', sys: 'You play the prospect. Given the lead profile + the outbound draft, predict the most likely reply. Three variants: warm reception, skeptical, ignore. For each: what they\'d say, sentiment, red flags, recommended next action. JSON only.' },
+  zeta: { id: 'ζ', role: 'distribute', sys: 'You format outbound for specific channels. Email: subject + body. LinkedIn DM: under 300 chars. Twitter DM: under 200. X reply: 1 sentence. Match channel norms.' },
+  eta: { id: 'η', role: 'optimise', sys: 'You generate A/B variants of an outbound message. Keep the core ask identical. Vary opening hook, tone register, CTA phrasing.' },
+  theta: { id: 'θ', role: 'target', sys: 'You sharpen closing. Given a drafted message, surface the ONE concrete next step (book a call, share a doc, answer a question). Make it the smallest possible commitment.' }
+};
+
+function buildSystem(agentId, ctx) {
+  const a = AGENTS[agentId];
+  if (!a) return '';
+  let s = a.sys;
+  if (ctx && ctx.voice) s += '\n\nThe operator\'s voice profile (match it):\n' + ctx.voice;
+  if (ctx && ctx.signature) s += '\n\nSignature: ' + ctx.signature;
+  return s;
+}
+
+// ── L3 CASCADE · T0 (offline) + T3 (LLM) ────────────
+const PROVIDERS = {
+  anthropic: { url: 'https://api.anthropic.com/v1/messages', model: 'claude-haiku-4-5-20251001', auth: 'x-api-key' },
+  openai:    { url: 'https://api.openai.com/v1/chat/completions', model: 'gpt-4o-mini', auth: 'Bearer' },
+  gemini:    { url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent', auth: 'query' },
+  groq:      { url: 'https://api.groq.com/openai/v1/chat/completions', model: 'llama-3.3-70b-versatile', auth: 'Bearer' }
+};
+
+async function callLLM(system, user, opts) {
+  const provider = DB.settings.provider;
+  const key = DB.settings.key;
+  if (!provider || !key) return null;
+  const cfg = PROVIDERS[provider];
+  if (!cfg) return null;
+  const maxTokens = (opts && opts.max) || 1024;
+  try {
+    let url = cfg.url;
+    let body;
+    let headers = { 'Content-Type': 'application/json' };
+    if (provider === 'anthropic') {
+      headers['x-api-key'] = key;
+      headers['anthropic-version'] = '2023-06-01';
+      headers['anthropic-dangerous-direct-browser-access'] = 'true';
+      body = { model: cfg.model, max_tokens: maxTokens, system, messages: [{ role: 'user', content: user }] };
+    } else if (provider === 'gemini') {
+      url = cfg.url + '?key=' + encodeURIComponent(key);
+      body = {
+        systemInstruction: { parts: [{ text: system }] },
+        contents: [{ parts: [{ text: user }] }],
+        generationConfig: { temperature: 0.4, maxOutputTokens: maxTokens }
+      };
+    } else {
+      headers['Authorization'] = 'Bearer ' + key;
+      body = {
+        model: cfg.model,
+        temperature: 0.4,
+        max_tokens: maxTokens,
+        messages: [{ role: 'system', content: system }, { role: 'user', content: user }]
+      };
+    }
+    const r = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      throw new Error(err.error?.message || err.message || ('HTTP ' + r.status));
+    }
+    const j = await r.json();
+    const text = j.content?.[0]?.text
+      || j.choices?.[0]?.message?.content
+      || j.candidates?.[0]?.content?.parts?.[0]?.text
+      || '';
+    return { text, provider, tier: 'T3' };
+  } catch (e) {
+    toast('LLM error: ' + e.message, 'error');
+    return null;
+  }
+}
+
+async function callLLMJSON(system, user, opts) {
+  const r = await callLLM(system + '\n\nReturn JSON ONLY. No prose, no markdown fences.', user, opts);
+  if (!r) return null;
+  try {
+    const match = r.text.match(/\{[\s\S]*\}/);
+    return match ? JSON.parse(match[0]) : null;
+  } catch (e) { return null; }
+}
+
+// ── T0 deterministic fallback scoring ───────────────
+function scoreT0(lead) {
+  const text = (lead.name + ' ' + (lead.role||'') + ' ' + (lead.company||'') + ' ' + (lead.context||'')).toLowerCase();
+  const seniority = /\b(ceo|cto|cmo|cfo|coo|founder|head of|vp|vice president|director)\b/.test(text);
+  const buyer    = /\b(marketing|sales|growth|operations|revenue|outbound)\b/.test(text);
+  const intent   = /\b(looking|need|searching|hiring|scaling|building|automating)\b/.test(text);
+  const heat     = /\b(series|raised|just launched|hiring|expanding|growing)\b/.test(text);
+  return {
+    fit:    (seniority?40:20) + (buyer?40:20),
+    intent: intent ? 55 : 30,
+    timing: heat ? 60 : 40,
+    heat:   heat ? 70 : 35,
+    rationale: 'T0 offline scoring · keyword heuristics · connect an LLM provider for full δ analysis'
+  };
+}
+
+// ── parse intake ────────────────────────────────────
+function parseLeads(text) {
+  const lines = text.split(/\n+/).map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+  const out = [];
+  for (const line of lines) {
+    // CSV style
+    if (line.includes(',') && line.split(',').length >= 2) {
+      const parts = line.split(',').map(s => s.trim());
+      out.push({
+        name: parts[0] || 'Unknown',
+        role: parts[1] || '',
+        company: parts[2] || '',
+        context: parts.slice(3).join(', ')
+      });
+      continue;
+    }
+    // "Name — Role at Company" / "Name, Role at Company"
+    const m = line.match(/^([^—–\-]+)[—–\-]\s*(.+?)(?:\s+at\s+(.+))?$/);
+    if (m) {
+      out.push({ name: m[1].trim(), role: m[2].trim(), company: (m[3]||'').trim(), context: '' });
+      continue;
+    }
+    // fallback: whole line is the lead's full description
+    out.push({ name: line.split(/\s+/).slice(0,2).join(' '), role: '', company: '', context: line });
+  }
+  return out;
+}
+
+// ── δ score (T3 if available, else T0) ──────────────
+async function scoreLead(lead) {
+  const ctx = { voice: DB.settings.voice, signature: DB.settings.signature };
+  const system = buildSystem('delta', ctx);
+  const user = `Lead:
+name: ${lead.name}
+role: ${lead.role || '(unknown)'}
+company: ${lead.company || '(unknown)'}
+context: ${lead.context || '(none)'}
+
+Score 0-100 on fit, intent, timing, heat. Return JSON:
+{"fit": N, "intent": N, "timing": N, "heat": N, "rationale": "1-2 sentences per dimension"}`;
+  const t3 = await callLLMJSON(system, user, { max: 400 });
+  if (t3 && t3.fit !== undefined) return { ...t3, tier: 'T3' };
+  return { ...scoreT0(lead), tier: 'T0' };
+}
+
+// ── β draft ─────────────────────────────────────────
+async function draftLead(lead) {
+  const ctx = { voice: DB.settings.voice, signature: DB.settings.signature };
+  const system = buildSystem('beta', ctx);
+  const user = `Draft a cold outbound message to this lead. ONE specific observation about them. ONE specific question (under 10 words). Channel: email or LinkedIn DM, choose what fits.
+
+Lead:
+name: ${lead.name}
+role: ${lead.role}
+company: ${lead.company}
+context: ${lead.context}
+scores: fit=${lead.scores?.fit} intent=${lead.scores?.intent} timing=${lead.scores?.timing} heat=${lead.scores?.heat}
+
+Return ONLY the message body. No subject line, no markdown.`;
+  const r = await callLLM(system, user, { max: 400 });
+  if (r) return r.text.trim();
+  // T0 fallback
+  return `Hi ${lead.name.split(' ')[0]},\n\n[T0 mode — connect an API key for personalised drafting]\n\nReached out because ${lead.company || 'your team'} ${lead.context ? '(' + lead.context + ')' : 'caught my eye'}.\n\nQuick question: are you currently looking at outbound tooling?\n\n${DB.settings.signature || '—S'}`;
+}
+
+// ── ε simulate ──────────────────────────────────────
+async function simulateLead(lead, draft) {
+  const ctx = { voice: DB.settings.voice };
+  const system = buildSystem('epsilon', ctx);
+  const user = `You are this prospect. Predict your reply to this outbound message.
+
+Prospect profile:
+${lead.name} · ${lead.role} · ${lead.company}
+context: ${lead.context}
+
+Incoming message:
+${draft}
+
+Return JSON:
+{
+  "warm": { "reply": "what they'd say if warmly received", "sentiment": "positive", "red_flags": [] },
+  "skeptical": { "reply": "what they'd say if skeptical", "sentiment": "neutral", "red_flags": ["..."] },
+  "cold": { "reply": "what they'd say if cold/ignore", "sentiment": "negative", "red_flags": ["..."] },
+  "recommended_action": "one sentence — what the operator should change before sending"
+}`;
+  const r = await callLLMJSON(system, user, { max: 700 });
+  if (r) return r;
+  return {
+    warm: { reply: '[T0 mode — connect API key for full ε simulation]', sentiment: 'unknown', red_flags: [] },
+    skeptical: { reply: '[T0 mode — connect API key]', sentiment: 'unknown', red_flags: [] },
+    cold: { reply: '[T0 mode — connect API key]', sentiment: 'unknown', red_flags: [] },
+    recommended_action: 'Add an LLM key in Settings to see realistic reply paths.'
+  };
+}
+
+// ── UI: ingest leads ────────────────────────────────
+async function ingestLeads() {
+  const raw = document.getElementById('intake-text').value.trim();
+  if (!raw) { toast('paste some leads first', 'warn'); return; }
+  const leads = parseLeads(raw);
+  if (!leads.length) { toast('no leads parsed', 'warn'); return; }
+  lifecycle('working');
+  toast('◊ ingesting ' + leads.length + ' lead(s) · δ scoring…', 'gold');
+  let i = 0;
+  for (const l of leads) {
+    const scores = await scoreLead(l);
+    const item = {
+      id: 'l' + Date.now() + '_' + (i++),
+      name: l.name, role: l.role, company: l.company, context: l.context,
+      scores,
+      state: 'scored',
+      created: Date.now(),
+      drafts: [],
+      source: 'paste'
+    };
+    DB.leads.unshift(item);
+    save();
+    renderBoard();
+    updateCounts();
+    // broadcast to mesh
+    meshPost('reach:scored', { who: item.name, company: item.company, overall: Math.round((scores.fit+scores.intent+scores.timing+scores.heat)/4) });
+  }
+  document.getElementById('intake-text').value = '';
+  lifecycle('progress');
+  toast('◊ ' + leads.length + ' lead(s) scored · open Board', 'gold');
+  setView('board');
+}
+
+// ── UI: render board ────────────────────────────────
+function renderBoard() {
+  const el = document.getElementById('board-content');
+  if (!DB.leads.length) {
+    el.innerHTML = '<div class="empty"><span class="glyph">●</span><h2>No leads scored yet</h2><p>Paste leads on the Pipeline tab and click "Ingest + score". δ analyse will rank them.</p><button class="btn btn-primary" onclick="setView(\'pipeline\')">→ Pipeline</button></div>';
+    return;
+  }
+  const cards = DB.leads.map(l => {
+    const s = l.scores || {};
+    const overall = Math.round(((s.fit||0)+(s.intent||0)+(s.timing||0)+(s.heat||0))/4);
+    const tier = overall >= 70 ? 'hot' : overall >= 45 ? 'warm' : 'cold';
+    const statePill = l.state === 'sent' ? '<span class="pill pill-primary">SENT</span>'
+                    : l.state === 'approved' ? '<span class="pill pill-accent">APPROVED</span>'
+                    : l.state === 'drafted' ? '<span class="pill pill-warn">DRAFTED</span>'
+                    : '<span class="pill">SCORED</span>';
+    return `<div class="lead-card" onclick="openLead('${l.id}')" data-id="${l.id}">
+      <div class="lead-state">${statePill}</div>
+      <div class="lead-name">${esc(l.name)}</div>
+      <div class="lead-role">${esc(l.role || '—')}</div>
+      <div class="lead-company">${esc(l.company || '—')}${l.scores?.tier === 'T0' ? ' · <span class="mono" style="font-size:10px">T0</span>' : ''}</div>
+      <div class="lead-scores">
+        <div class="score-cell ${tier}"><div class="score-val">${s.fit||0}</div><div class="score-label">fit</div></div>
+        <div class="score-cell ${tier}"><div class="score-val">${s.intent||0}</div><div class="score-label">intent</div></div>
+        <div class="score-cell ${tier}"><div class="score-val">${s.timing||0}</div><div class="score-label">timing</div></div>
+        <div class="score-cell ${tier}"><div class="score-val">${s.heat||0}</div><div class="score-label">heat</div></div>
+      </div>
+    </div>`;
+  }).join('');
+  el.innerHTML = '<div class="lead-grid">' + cards + '</div>';
+}
+
+// ── UI: open lead (compose view) ────────────────────
+let activeLeadId = null;
+async function openLead(id) {
+  const lead = DB.leads.find(x => x.id === id);
+  if (!lead) return;
+  activeLeadId = id;
+  setView('compose');
+  renderCompose(lead);
+}
+
+async function renderCompose(lead) {
+  const el = document.getElementById('compose-content');
+  const s = lead.scores || {};
+  const overall = Math.round(((s.fit||0)+(s.intent||0)+(s.timing||0)+(s.heat||0))/4);
+  el.innerHTML = `<div class="compose-grid">
+    <aside class="lead-panel">
+      <h2>${esc(lead.name)}</h2>
+      <div class="row-info"><strong>${esc(lead.role||'—')}</strong></div>
+      <div class="row-info" style="color:var(--muted)">${esc(lead.company||'—')}</div>
+      <div class="lead-scores" style="margin-top:14px">
+        <div class="score-cell"><div class="score-val">${s.fit||0}</div><div class="score-label">fit</div></div>
+        <div class="score-cell"><div class="score-val">${s.intent||0}</div><div class="score-label">intent</div></div>
+        <div class="score-cell"><div class="score-val">${s.timing||0}</div><div class="score-label">timing</div></div>
+        <div class="score-cell"><div class="score-val">${s.heat||0}</div><div class="score-label">heat</div></div>
+      </div>
+      <div style="margin-top:12px"><span class="pill ${overall>=70?'pill-primary':overall>=45?'pill-warn':''}">${overall}/100 overall</span></div>
+      ${s.rationale ? '<div class="rationale">'+esc(s.rationale)+'</div>' : ''}
+      ${lead.context ? '<div class="rationale">context: ' + esc(lead.context) + '</div>' : ''}
+    </aside>
+    <div class="draft-stack">
+      <div class="card">
+        <div class="card-head"><div class="card-title">β draft <span class="pill pill-accent" style="margin-left:8px">${DB.settings.provider ? 'T3 · '+DB.settings.provider : 'T0'}</span></div></div>
+        <textarea id="draft-text" class="draft-textarea" placeholder="β is drafting in your voice...">${esc(lead.drafts?.[0]?.message || '')}</textarea>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" onclick="redraft('${lead.id}')">β draft / redraft</button>
+          <button class="btn btn-ghost btn-sm" onclick="simulate('${lead.id}')">ε simulate reply</button>
+        </div>
+      </div>
+      <div class="card" id="sim-card" style="display:${lead.drafts?.[0]?.simulation?'block':'none'}">
+        <div class="card-head"><div class="card-title">ε simulation · likely reply paths</div></div>
+        <div id="sim-content">${lead.drafts?.[0]?.simulation ? renderSim(lead.drafts[0].simulation) : ''}</div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">R6 approve gate</div></div>
+        <p style="font-size:13px;color:var(--ink-2);margin-bottom:14px">Nothing leaves your machine until you click. Approval logs the draft + scoring + simulation as one record. Send is manual — copy the message and paste it into your channel of choice.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="approveDraft('${lead.id}')">✓ Approve + copy to clipboard</button>
+          <button class="btn btn-ghost btn-sm" onclick="rejectDraft('${lead.id}')">✕ Reject</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderSim(sim) {
+  return `<div class="sim-bubble">
+    <h3 style="margin:0 0 4px;color:var(--primary)">WARM</h3>
+    <div class="sim-content">${esc(sim.warm?.reply || '—')}</div>
+    <div class="sim-meta"><span class="pill pill-primary">${sim.warm?.sentiment || '—'}</span></div>
+  </div>
+  <div class="sim-bubble" style="background:var(--warn-light);border-color:rgba(245,158,11,.3)">
+    <h3 style="margin:0 0 4px;color:var(--warn)">SKEPTICAL</h3>
+    <div class="sim-content">${esc(sim.skeptical?.reply || '—')}</div>
+    <div class="sim-meta">${(sim.skeptical?.red_flags||[]).map(f => '<span class="pill pill-warn">'+esc(f)+'</span>').join('')}</div>
+  </div>
+  <div class="sim-bubble" style="background:var(--danger-light);border-color:rgba(239,68,68,.3)">
+    <h3 style="margin:0 0 4px;color:var(--danger)">COLD / IGNORE</h3>
+    <div class="sim-content">${esc(sim.cold?.reply || '—')}</div>
+    <div class="sim-meta">${(sim.cold?.red_flags||[]).map(f => '<span class="pill pill-danger">'+esc(f)+'</span>').join('')}</div>
+  </div>
+  ${sim.recommended_action ? '<div class="status status-info" style="margin-top:10px">θ · '+esc(sim.recommended_action)+'</div>' : ''}`;
+}
+
+async function redraft(id) {
+  const lead = DB.leads.find(x => x.id === id);
+  if (!lead) return;
+  toast('β drafting...', 'gold');
+  const message = await draftLead(lead);
+  lead.drafts = lead.drafts || [];
+  if (lead.drafts.length === 0) lead.drafts.push({ message, created: Date.now() });
+  else lead.drafts[0] = Object.assign(lead.drafts[0] || {}, { message, created: Date.now(), simulation: null });
+  lead.state = 'drafted';
+  save();
+  meshPost('reach:drafted', { who: lead.name, len: message.length });
+  renderCompose(lead);
+  renderBoard();
+  updateCounts();
+  toast('β drafted', 'gold');
+}
+
+async function simulate(id) {
+  const lead = DB.leads.find(x => x.id === id);
+  if (!lead) return;
+  const message = document.getElementById('draft-text').value.trim();
+  if (!message) { toast('write a draft first', 'warn'); return; }
+  if (!lead.drafts?.length) lead.drafts = [{ message }];
+  lead.drafts[0].message = message;
+  toast('ε simulating prospect...', 'gold');
+  const sim = await simulateLead(lead, message);
+  lead.drafts[0].simulation = sim;
+  save();
+  document.getElementById('sim-card').style.display = 'block';
+  document.getElementById('sim-content').innerHTML = renderSim(sim);
+}
+
+function approveDraft(id) {
+  const lead = DB.leads.find(x => x.id === id);
+  if (!lead) return;
+  const message = document.getElementById('draft-text').value.trim();
+  if (!message) { toast('nothing to approve', 'warn'); return; }
+  if (!lead.drafts?.length) lead.drafts = [{ message }];
+  lead.drafts[0].message = message;
+  lead.drafts[0].approved_at = Date.now();
+  lead.state = 'approved';
+  // copy to clipboard
+  navigator.clipboard?.writeText(message).then(() => toast('◊ approved + copied to clipboard · paste into your channel', 'gold'));
+  // log
+  DB.log.unshift({
+    id: 'lg' + Date.now(),
+    when: Date.now(),
+    who: lead.name,
+    company: lead.company,
+    message,
+    scores: lead.scores,
+    simulation: lead.drafts[0].simulation || null,
+    state: 'approved'
+  });
+  save();
+  meshPost('reach:approved', { who: lead.name, company: lead.company });
+  renderBoard();
+  renderLog();
+  updateCounts();
+  lifecycle('complete');
+}
+
+function rejectDraft(id) {
+  const lead = DB.leads.find(x => x.id === id);
+  if (!lead) return;
+  if (!confirm('Reject this draft? It will be cleared so β can try again.')) return;
+  if (lead.drafts?.length) lead.drafts[0] = { message: '' };
+  lead.state = 'scored';
+  save();
+  renderCompose(lead);
+  renderBoard();
+  toast('rejected · draft cleared', 'warn');
+}
+
+// ── render log ──────────────────────────────────────
+function renderLog() {
+  const el = document.getElementById('log-list');
+  if (!DB.log.length) {
+    el.innerHTML = '<li class="empty" style="padding:32px 20px"><span class="glyph">◯</span><h2 style="font-size:14px">Nothing in the log yet</h2><p style="font-size:12px">Approve a draft to see it land here.</p></li>';
+    return;
+  }
+  el.innerHTML = DB.log.map(l => `<li class="log-item">
+    <div class="log-body">
+      <div class="log-who">${esc(l.who)}${l.company ? ' · <span style="color:var(--muted);font-weight:400">'+esc(l.company)+'</span>' : ''}</div>
+      <div class="log-what">${esc((l.message||'').slice(0,140))}${(l.message||'').length>140?'...':''}</div>
+    </div>
+    <div class="log-when">${new Date(l.when).toLocaleString()}<br><span class="pill pill-primary" style="margin-top:4px;display:inline-block">${esc(l.state)}</span></div>
+  </li>`).join('');
+}
+
+function exportLog() {
+  download('fallreach-log-' + Date.now() + '.json', JSON.stringify(DB.log, null, 2));
+}
+
+// ── settings ────────────────────────────────────────
+function saveLLM() {
+  DB.settings.provider = document.getElementById('llm-provider').value;
+  DB.settings.key = document.getElementById('llm-key').value.trim();
+  save();
+  toast('◊ LLM saved', 'gold');
+}
+
+function saveVoice() {
+  DB.settings.voice = document.getElementById('voice-profile').value.trim();
+  DB.settings.signature = document.getElementById('voice-signature').value.trim();
+  save();
+  toast('◊ voice locked', 'gold');
+}
+
+function hydrateSettings() {
+  const set = (id, v) => { const el = document.getElementById(id); if (el && v !== undefined) { if (el.type === 'checkbox') el.checked = !!v; else el.value = v || ''; } };
+  set('llm-provider', DB.settings.provider);
+  set('llm-key', DB.settings.key);
+  set('voice-profile', DB.settings.voice);
+  set('voice-signature', DB.settings.signature);
+  set('mesh-auto', DB.settings.mesh_auto);
+}
+
+function exportAll() {
+  download('fallreach-export-' + Date.now() + '.json', JSON.stringify(DB, null, 2));
+}
+
+function importAll(ev) {
+  const f = ev.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = e => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      DB = Object.assign(defaultDB(), parsed);
+      window.DB = DB;
+      save();
+      renderBoard(); renderLog(); hydrateSettings(); updateCounts();
+      toast('◊ imported', 'gold');
+    } catch (err) { toast('import failed: '+err.message, 'error'); }
+  };
+  r.readAsText(f);
+}
+
+function clearAll() {
+  DB = defaultDB();
+  window.DB = DB;
+  save();
+  renderBoard(); renderLog(); hydrateSettings(); updateCounts();
+  toast('◊ wiped', 'warn');
+}
+
+// ── sample data ─────────────────────────────────────
+function loadSample() {
+  const sample = `Brian Donatiello, Founder, Autoreach, building AI SDR · controlled autonomy product · 89,352 leads scored
+Jane Park, VP Marketing, Stripe, looking at outbound automation for enterprise team
+Marcus Chen — Head of Growth at Notion · scaling demand gen, evaluating SDR tools
+Priya Mehta, CEO, EarlyStage Co, just raised seed · 4 person team · founder-led sales
+Alex Rivera, Director of Sales Ops, Globex Industries, replacing legacy SDR stack`;
+  document.getElementById('intake-text').value = sample;
+  toast('sample loaded · click Ingest', 'gold');
+}
+
+// ── navigation ──────────────────────────────────────
+function setView(name) {
+  ['pipeline','board','compose','log','settings'].forEach(v => {
+    const sec = document.getElementById('view-' + v);
+    if (sec) sec.style.display = (v === name) ? '' : 'none';
+  });
+  document.querySelectorAll('nav.tabs button').forEach(b => {
+    b.classList.toggle('active', b.dataset.view === name);
+  });
+  if (name === 'board') renderBoard();
+  if (name === 'log') renderLog();
+  if (name === 'settings') hydrateSettings();
+  if (name === 'compose' && activeLeadId) {
+    const l = DB.leads.find(x => x.id === activeLeadId);
+    if (l) renderCompose(l);
+  }
+}
+
+function updateCounts() {
+  const pending = DB.leads.filter(l => l.state === 'scored' || l.state === 'drafted').length;
+  document.getElementById('cnt-pipeline').textContent = DB.leads.length;
+  document.getElementById('cnt-board').textContent = pending;
+  document.getElementById('cnt-log').textContent = DB.log.length;
+}
+
+// ── utils ───────────────────────────────────────────
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function toast(msg, kind) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + (kind || '');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => { el.className = 'toast'; }, 3500);
+}
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+function download(name, content) {
+  const blob = new Blob([content], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// ── mesh shim ───────────────────────────────────────
+let meshChannel = null;
+function meshPost(type, data) {
+  if (!meshChannel) return;
+  try {
+    meshChannel.postMessage(Object.assign({ type, from: NODE.id, prime: NODE.prime, name: NODE.name, t: Date.now() }, data || {}));
+  } catch (e) {}
+}
+(function meshBoot() {
+  if (typeof BroadcastChannel === 'undefined') return;
+  try { meshChannel = new BroadcastChannel('fallmesh'); } catch (e) { return; }
+  window.fallmesh = {
+    post: meshPost,
+    emit: (data) => meshPost('reach:event', data),
+    request: (type, payload) => meshPost('request:' + type, { payload })
+  };
+  meshChannel.onmessage = (e) => {
+    const m = e.data;
+    if (!m || m.from === NODE.id) return;
+    if (m.type === 'mesh:ping') {
+      meshPost('mesh:pong', { url: location.origin + location.pathname, capabilities: ['lead-ingest','draft','simulate','audit'] });
+      return;
+    }
+    // Mesh-receiver: accept peer events as inbound leads
+    if (!DB.settings.mesh_auto) return;
+    const INBOUND = ['scout:enriched','concierge:visitor','lead:qualified'];
+    if (!INBOUND.includes(m.type)) return;
+    const payload = m.payload || m;
+    const lead = {
+      id: 'mesh' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+      name: payload.name || payload.who || 'mesh inbound',
+      role: payload.role || '',
+      company: payload.company || '',
+      context: payload.message || payload.text || JSON.stringify(payload).slice(0,200),
+      scores: scoreT0({ name: payload.name||'', role: payload.role||'', company: payload.company||'', context: payload.message||'' }),
+      state: 'scored',
+      created: Date.now(),
+      drafts: [],
+      source: 'mesh:' + m.from
+    };
+    DB.leads.unshift(lead);
+    save();
+    renderBoard();
+    updateCounts();
+    toast('◊ mesh inbound: ' + m.from + ' → ' + lead.name, 'gold');
+  };
+  meshPost('node:online', { url: location.origin + location.pathname, layers: 7 });
+  console.log('%c◊·κ=1', 'color:#10b981;font-weight:bold;font-size:14px', 'FallReach · prime 107 · mesh online');
+})();
+
+// ── tab clicks ──────────────────────────────────────
+document.querySelectorAll('nav.tabs button').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+document.getElementById('mesh-auto')?.addEventListener('change', e => { DB.settings.mesh_auto = e.target.checked; save(); });
+
+// ── boot ────────────────────────────────────────────
+renderBoard();
+renderLog();
+updateCounts();
+hydrateSettings();
+lifecycle(DB.leads.length ? 'progress' : 'empty');
+setView('pipeline');
+</script>
+</body>
+</html>
