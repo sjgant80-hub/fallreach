@@ -196,6 +196,7 @@ footer a{color:var(--muted)}
       <div class="brand-text">Fall<span>Reach</span></div>
     </div>
     <span class="brand-badge">SOVEREIGN AI SDR</span>
+    <span class="brand-badge" id="colony-badge" title="konomi-swarm colony · gen / trails / reward" style="cursor:pointer" onclick="setView('settings')">◊ gen 1 · 0 trails</span>
   </div>
   <nav class="tabs" role="tablist">
     <button data-view="pipeline" class="active" role="tab">Pipeline <span class="nav-count" id="cnt-pipeline">0</span></button>
@@ -339,6 +340,26 @@ Or paste a CSV (name,role,company,context). δ figures out the rest."></textarea
   </div>
 
   <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-title">Colony · konomi-swarm · prime 109</div>
+        <div class="card-sub">The lesson layer. Every approve deposits a positive pheromone trail. Every reject deposits negative. β reads top trails when drafting the next message.</div>
+      </div>
+      <a href="https://sjgant80-hub.github.io/konomi-swarm/" target="_blank" class="btn btn-ghost btn-sm">↗ Demo</a>
+    </div>
+    <div class="mono" id="colony-stats" style="font-size:12px;color:var(--ink-2);line-height:1.8;margin-bottom:14px">loading colony state…</div>
+    <h3>Top trails (β prefers these)</h3>
+    <div id="colony-top" style="margin-bottom:14px"></div>
+    <h3>Avoided trails (β steers clear)</h3>
+    <div id="colony-avoid" style="margin-bottom:14px"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary btn-sm" onclick="evolveColony()">↻ Evolve generation</button>
+      <button class="btn btn-ghost btn-sm" onclick="decayColony()">↘ Decay trails</button>
+      <button class="btn btn-danger btn-sm" onclick="if(confirm('Reset the colony? You lose all the operator memory.')) resetColony()">⟲ Reset colony</button>
+    </div>
+  </div>
+
+  <div class="card">
     <div class="card-head"><div class="card-title">◊ Konomi · prime 107 · v18</div></div>
     <div class="mono" style="font-size:11px;color:var(--muted);line-height:1.8">
       ◊·κ=1 · sovereign single-file · 7 layers · 8+1 agents<br>
@@ -391,6 +412,106 @@ function defaultDB() {
 }
 let DB = load();
 window.DB = DB;
+
+// ═══════════════════════════════════════════════════════════════
+// konomi-swarm v1.0 · the colony primitive · prime 109
+// shape · κ₂.thomas (swarm-mind) · build · κ₀.simon
+// inlined for sovereign single-file principle · MIT
+// ═══════════════════════════════════════════════════════════════
+const KonomiSwarm = (function () {
+  'use strict';
+  function Colony(opts) {
+    opts = opts || {};
+    this.id = opts.id || 'col_' + Date.now().toString(36);
+    this.pheromone = opts.pheromone || {};
+    this.gen = opts.gen || 1;
+    this.traits = opts.traits || { speed: 1.0, sense: 1.0, voice_match: 1.0 };
+    this.decayRate = typeof opts.decayRate === 'number' ? opts.decayRate : 0.95;
+    this.maxTrail = opts.maxTrail || 100;
+    this.history = opts.history || [];
+    this.historyMax = opts.historyMax || 500;
+    this.created = opts.created || Date.now();
+    this.lastEvolved = opts.lastEvolved || null;
+  }
+  Colony.prototype.deposit = function (info) {
+    if (!info || !info.pattern) return this;
+    var key = String(info.pattern), out = info.outcome || 'approved';
+    var w = typeof info.weight === 'number' ? info.weight : 1, sign = 1;
+    if (['rejected','cold','ignored','bounced'].indexOf(out) >= 0) sign = -1;
+    else if (['neutral','mixed'].indexOf(out) >= 0) sign = 0;
+    var cur = this.pheromone[key] || 0, nxt = cur + sign * w * this.traits.voice_match;
+    if (nxt > this.maxTrail) nxt = this.maxTrail;
+    if (nxt < -this.maxTrail) nxt = -this.maxTrail;
+    this.pheromone[key] = nxt;
+    this.history.push({ pattern: key, outcome: out, weight: w, t: Date.now() });
+    if (this.history.length > this.historyMax) this.history.shift();
+    return this;
+  };
+  Colony.prototype.sample = function (opts) {
+    opts = opts || {};
+    var cands = opts.candidates || []; if (!cands.length) return [];
+    var k = opts.k || 1, explore = typeof opts.explore === 'number' ? opts.explore : 0.15;
+    var keyFn = opts.key || function (x) { return String(x); }, pool = cands.slice(), out = [];
+    while (out.length < k && pool.length) {
+      if (Math.random() < explore) { out.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]); continue; }
+      var weights = pool.map(function(c){ var t=this.pheromone[keyFn(c)]||0; return Math.exp(t*this.traits.sense*0.1); }, this);
+      var total = weights.reduce(function(a,b){return a+b;},0), r = Math.random()*total, idx = 0;
+      for (var j = 0; j < weights.length; j++) { r -= weights[j]; if (r <= 0) { idx = j; break; } }
+      out.push(pool.splice(idx, 1)[0]);
+    }
+    return out;
+  };
+  Colony.prototype.score = function (p) { return this.pheromone[String(p)] || 0; };
+  Colony.prototype.decay = function () { for (var k in this.pheromone) { this.pheromone[k] *= this.decayRate; if (Math.abs(this.pheromone[k]) < 0.05) delete this.pheromone[k]; } return this; };
+  Colony.prototype.evolve = function () {
+    var w = this.history.slice(-100), wins = 0;
+    for (var i = 0; i < w.length; i++) { var o = w[i].outcome; if (['rejected','cold','ignored','bounced'].indexOf(o) < 0) wins++; }
+    var reward = wins / (w.length || 1), sigma = 0.08 * (1 - reward);
+    function clamp(v){return Math.max(0.1,Math.min(3.0,v));}
+    function gauss(){var u=Math.random()||1e-9,v=Math.random()||1e-9;return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+    this.traits.speed = clamp(this.traits.speed * (1 + gauss() * sigma));
+    this.traits.sense = clamp(this.traits.sense * (1 + gauss() * sigma));
+    this.traits.voice_match = clamp(this.traits.voice_match * (1 + gauss() * sigma));
+    this.gen++; this.lastEvolved = Date.now(); this.decay();
+    return this;
+  };
+  Colony.prototype.topTrails = function (k) { k = k || 10; return Object.keys(this.pheromone).map(function(key){return {pattern:key,strength:this.pheromone[key]};},this).filter(function(t){return t.strength>0;}).sort(function(a,b){return b.strength-a.strength;}).slice(0,k); };
+  Colony.prototype.avoidedTrails = function (k) { k = k || 10; return Object.keys(this.pheromone).map(function(key){return {pattern:key,strength:this.pheromone[key]};},this).filter(function(t){return t.strength<0;}).sort(function(a,b){return a.strength-b.strength;}).slice(0,k); };
+  Colony.prototype.stats = function () { var keys=Object.keys(this.pheromone),pos=0,neg=0; for(var i=0;i<keys.length;i++){var v=this.pheromone[keys[i]];if(v>0)pos++;else if(v<0)neg++;} return {id:this.id,gen:this.gen,traits:Object.assign({},this.traits),trail_count:keys.length,positive_trails:pos,negative_trails:neg,history_size:this.history.length}; };
+  Colony.prototype.toJSON = function () { return {id:this.id,pheromone:this.pheromone,gen:this.gen,traits:this.traits,decayRate:this.decayRate,maxTrail:this.maxTrail,history:this.history,historyMax:this.historyMax,created:this.created,lastEvolved:this.lastEvolved}; };
+  Colony.fromJSON = function (j) { return j ? new Colony(j) : new Colony(); };
+  return { VERSION:'1.0.0', PRIME:109, Colony:Colony };
+})();
+
+// ── Colony instance for this operator ───────────────
+function loadColony() {
+  try { var raw = localStorage.getItem(NS + ':colony'); if (raw) return KonomiSwarm.Colony.fromJSON(JSON.parse(raw)); }
+  catch (e) {}
+  return new KonomiSwarm.Colony({ id: 'fallreach' });
+}
+function saveColony() {
+  try { localStorage.setItem(NS + ':colony', JSON.stringify(colony.toJSON())); } catch (e) {}
+}
+let colony = loadColony();
+window.colony = colony;
+
+// ── Classifier — extract a stable pattern key from any draft ─
+function classify(message, lead) {
+  if (!message) return 'empty';
+  const m = String(message).toLowerCase().trim();
+  const len = m.length;
+  const sizeTag = len < 150 ? 'short' : len < 400 ? 'med' : 'long';
+  const hasQuestion = m.includes('?');
+  const opener = /^(hi|hey|hello|noticed|saw|read|just|quick|congrat|love|been|recently)/.test(m) ? 'warm' : 'cold';
+  const hasData = /\d/.test(m);
+  let tier = 'unknown';
+  if (lead && lead.scores) {
+    const s = lead.scores;
+    const o = Math.round(((s.fit||0)+(s.intent||0)+(s.timing||0)+(s.heat||0))/4);
+    tier = o >= 70 ? 'hot' : o >= 45 ? 'warm-lead' : 'cold-lead';
+  }
+  return tier + '::' + opener + '-' + sizeTag + (hasQuestion ? '+q' : '') + (hasData ? '+d' : '');
+}
 function load() {
   try { const raw = localStorage.getItem(NS); if (raw) return Object.assign(defaultDB(), JSON.parse(raw)); }
   catch (e) {}
@@ -580,6 +701,16 @@ Score 0-100 on fit, intent, timing, heat. Return JSON:
 async function draftLead(lead) {
   const ctx = { voice: DB.settings.voice, signature: DB.settings.signature };
   const system = buildSystem('beta', ctx);
+  // Colony priors — what the colony has learned from past approve/reject
+  const top = colony.topTrails(5).map(t => t.pattern);
+  const avoid = colony.avoidedTrails(3).map(t => t.pattern);
+  let colonyPrior = '';
+  if (top.length || avoid.length) {
+    colonyPrior = '\n\nColony memory (gen ' + colony.gen + ' · ' + colony.history.length + ' past deposits):\n';
+    if (top.length) colonyPrior += 'Patterns that landed: ' + top.join(' · ') + '\n';
+    if (avoid.length) colonyPrior += 'Patterns that fell flat: ' + avoid.join(' · ') + '\n';
+    colonyPrior += '(Pattern keys are tier::opener-size+modifier. Bias toward winners, avoid losers, but don\'t mimic — re-express the shape in your own draft.)';
+  }
   const user = `Draft a cold outbound message to this lead. ONE specific observation about them. ONE specific question (under 10 words). Channel: email or LinkedIn DM, choose what fits.
 
 Lead:
@@ -588,6 +719,7 @@ role: ${lead.role}
 company: ${lead.company}
 context: ${lead.context}
 scores: fit=${lead.scores?.fit} intent=${lead.scores?.intent} timing=${lead.scores?.timing} heat=${lead.scores?.heat}
+${colonyPrior}
 
 Return ONLY the message body. No subject line, no markdown.`;
   const r = await callLLM(system, user, { max: 400 });
@@ -804,8 +936,12 @@ function approveDraft(id) {
   lead.drafts[0].message = message;
   lead.drafts[0].approved_at = Date.now();
   lead.state = 'approved';
+  // colony pheromone deposit — the trail this pattern just walked
+  const pattern = classify(message, lead);
+  colony.deposit({ pattern, outcome: 'approved' });
+  saveColony();
   // copy to clipboard
-  navigator.clipboard?.writeText(message).then(() => toast('◊ approved + copied to clipboard · paste into your channel', 'gold'));
+  navigator.clipboard?.writeText(message).then(() => toast('◊ approved + copied · colony +1 ' + pattern, 'gold'));
   // log
   DB.log.unshift({
     id: 'lg' + Date.now(),
@@ -815,13 +951,16 @@ function approveDraft(id) {
     message,
     scores: lead.scores,
     simulation: lead.drafts[0].simulation || null,
+    pattern,
     state: 'approved'
   });
   save();
-  meshPost('reach:approved', { who: lead.name, company: lead.company });
+  meshPost('reach:approved', { who: lead.name, company: lead.company, pattern, gen: colony.gen });
+  meshPost('swarm:pheromone', { colony: colony.id, gen: colony.gen, deposit: { pattern, outcome: 'approved', weight: 1 } });
   renderBoard();
   renderLog();
   updateCounts();
+  updateColonyBadge();
   lifecycle('complete');
 }
 
@@ -829,12 +968,21 @@ function rejectDraft(id) {
   const lead = DB.leads.find(x => x.id === id);
   if (!lead) return;
   if (!confirm('Reject this draft? It will be cleared so β can try again.')) return;
+  const message = document.getElementById('draft-text')?.value?.trim() || lead.drafts?.[0]?.message || '';
+  // colony pheromone deposit — negative trail
+  if (message) {
+    const pattern = classify(message, lead);
+    colony.deposit({ pattern, outcome: 'rejected' });
+    saveColony();
+    meshPost('swarm:pheromone', { colony: colony.id, gen: colony.gen, deposit: { pattern, outcome: 'rejected', weight: 1 } });
+  }
   if (lead.drafts?.length) lead.drafts[0] = { message: '' };
   lead.state = 'scored';
   save();
   renderCompose(lead);
   renderBoard();
-  toast('rejected · draft cleared', 'warn');
+  updateColonyBadge();
+  toast('rejected · colony -1', 'warn');
 }
 
 // ── render log ──────────────────────────────────────
@@ -879,6 +1027,63 @@ function hydrateSettings() {
   set('voice-profile', DB.settings.voice);
   set('voice-signature', DB.settings.signature);
   set('mesh-auto', DB.settings.mesh_auto);
+  renderColonyPanel();
+}
+
+function renderColonyPanel() {
+  const s = colony.stats();
+  const recent = colony.history.slice(-100);
+  const wins = recent.filter(h => ['rejected','cold','ignored','bounced'].indexOf(h.outcome) < 0).length;
+  const reward = recent.length ? Math.round((wins / recent.length) * 100) : null;
+  const statsEl = document.getElementById('colony-stats');
+  if (statsEl) statsEl.innerHTML =
+    'gen <strong>' + s.gen + '</strong> · trails <strong>' + s.trail_count + '</strong> (' + s.positive_trails + ' positive · ' + s.negative_trails + ' negative)<br>' +
+    'history <strong>' + s.history_size + '</strong> deposits · recent reward ' + (reward !== null ? '<strong style="color:var(--primary)">' + reward + '%</strong>' : '—') + '<br>' +
+    'traits · speed ' + s.traits.speed.toFixed(2) + ' · sense ' + s.traits.sense.toFixed(2) + ' · voice_match ' + s.traits.voice_match.toFixed(2) +
+    (s.last_evolved ? '<br>last evolved · ' + new Date(s.last_evolved).toLocaleString() : '');
+  const topEl = document.getElementById('colony-top');
+  if (topEl) {
+    const top = colony.topTrails(5);
+    topEl.innerHTML = top.length ? top.map(t => '<span class="pill pill-primary" style="margin:2px 4px 2px 0">' + t.pattern + ' · +' + t.strength.toFixed(1) + '</span>').join('') : '<span style="color:var(--muted);font-size:12px;font-style:italic">none yet — approve a few drafts to teach the colony</span>';
+  }
+  const avoidEl = document.getElementById('colony-avoid');
+  if (avoidEl) {
+    const av = colony.avoidedTrails(5);
+    avoidEl.innerHTML = av.length ? av.map(t => '<span class="pill pill-danger" style="margin:2px 4px 2px 0">' + t.pattern + ' · ' + t.strength.toFixed(1) + '</span>').join('') : '<span style="color:var(--muted);font-size:12px;font-style:italic">no avoided patterns yet</span>';
+  }
+}
+
+function updateColonyBadge() {
+  const el = document.getElementById('colony-badge');
+  if (!el) return;
+  const s = colony.stats();
+  el.textContent = '◊ gen ' + s.gen + ' · ' + s.trail_count + ' trails';
+}
+
+function evolveColony() {
+  colony.evolve();
+  saveColony();
+  renderColonyPanel();
+  updateColonyBadge();
+  toast('↻ generation ' + colony.gen + ' · traits mutated · trails decayed', 'gold');
+  meshPost('swarm:evolved', { colony: colony.id, gen: colony.gen, traits: colony.traits });
+}
+
+function decayColony() {
+  colony.decay();
+  saveColony();
+  renderColonyPanel();
+  updateColonyBadge();
+  toast('↘ trails decayed by ' + Math.round(colony.decayRate * 100) + '%', 'gold');
+}
+
+function resetColony() {
+  colony = new KonomiSwarm.Colony({ id: 'fallreach' });
+  window.colony = colony;
+  saveColony();
+  renderColonyPanel();
+  updateColonyBadge();
+  toast('⟲ colony reset', 'warn');
 }
 
 function exportAll() {
@@ -1021,8 +1226,10 @@ renderBoard();
 renderLog();
 updateCounts();
 hydrateSettings();
+updateColonyBadge();
 lifecycle(DB.leads.length ? 'progress' : 'empty');
 setView('pipeline');
+console.log('%c◊·κ=1', 'color:#10b981;font-weight:bold;font-size:14px', 'FallReach v1.1 · konomi-swarm prime 109 loaded · colony gen ' + colony.gen);
 </script>
 </body>
 </html>
