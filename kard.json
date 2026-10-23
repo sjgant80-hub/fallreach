@@ -1,0 +1,29 @@
+{
+  "kind": "kard.v1",
+  "name": "fallreach",
+  "title": "FallReach",
+  "retires": "a rented sales-outreach tool",
+  "category": "CRM and sales",
+  "license": "MIT",
+  "live": "https://sjgant80-hub.github.io/fallreach/",
+  "repo": "https://github.com/sjgant80-hub/fallreach",
+  "studs": {
+    "brain": {
+      "how": "inline",
+      "version": "3.1.0"
+    },
+    "mesh": {
+      "device": true,
+      "peer": false
+    },
+    "memory": {
+      "indexeddb": false,
+      "localstorage": true
+    },
+    "proof": {
+      "workflows": 0,
+      "tests": 0
+    }
+  },
+  "fits": false
+}
